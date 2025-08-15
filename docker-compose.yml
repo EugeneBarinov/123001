@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    environment:
+      - PYTHONPATH=/app
+      - MODEL_CKPT=AI/models/checkpoints/model.pt
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    restart: unless-stopped
+  frontend:
+    image: python:3.10-slim
+    working_dir: /app
+    environment:
+      - API_URL=http://api:8000
+    command: bash -lc "pip install --no-cache-dir -r AI/requirements.txt && streamlit run AI/frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0"
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    depends_on:
+      - api
